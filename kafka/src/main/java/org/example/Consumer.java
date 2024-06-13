@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Properties;
 
 public class Consumer {
-//    static final String TOPIC = "youtube";
     static final String TOPIC = "message";
     static final String GROUP = "consumer_group";
 
@@ -21,8 +20,12 @@ public class Consumer {
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("group.id", GROUP);
-        props.put("auto.offset.reset", "latest");
-        props.put("auto.commit.interval.ms", "1000");
+
+        props.setProperty("enable.auto.commit", "false");
+
+        
+        // props.put("auto.offset.reset", "latest");
+        // props.put("auto.commit.interval.ms", "1000");
         props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 
@@ -36,6 +39,13 @@ public class Consumer {
                     System.out.println("Received a record: " + record.key() + ":" + record.value());
 //                    byte[] mdresult = messageDigest.digest((record.value()).getBytes());
 //                    System.out.println("MD5 hashed value: " + mdresult);
+
+                    try{
+                        consumer.commitSync();
+                    }catch (CommitFailedException e){
+                        System.out.println("Commit failed due to : "+ e);
+                        e.printStackTrace();
+                    }
                 }
             }
         }
